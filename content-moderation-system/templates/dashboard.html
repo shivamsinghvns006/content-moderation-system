@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1>Moderator Dashboard</h1>
+
+<div class="stats-grid">
+    <div class="stat-card total"><span>{{ stats.total }}</span><label>Total Checked</label></div>
+    <div class="stat-card approved"><span>{{ stats.approved }}</span><label>Approved</label></div>
+    <div class="stat-card flagged"><span>{{ stats.flagged }}</span><label>Flagged</label></div>
+    <div class="stat-card rejected"><span>{{ stats.rejected }}</span><label>Rejected</label></div>
+</div>
+
+<h2>🚩 Needs Human Review ({{ flagged_items|length }})</h2>
+{% if flagged_items %}
+<table class="content-table">
+    <thead>
+        <tr><th>ID</th><th>Type</th><th>Preview</th><th>Confidence</th><th>Reasons</th><th>Platform</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        {% for item in flagged_items %}
+        <tr>
+            <td>#{{ item.id }}</td>
+            <td>{{ item.content_type }}</td>
+            <td class="preview-cell">{{ item.preview }}</td>
+            <td>{{ (item.confidence_score * 100)|round(0) }}%</td>
+            <td>
+                {% for cat in item.categories.split(',') %}
+                    <span class="badge">{{ cat }}</span>
+                {% endfor %}
+            </td>
+            <td>{{ item.source_platform }}</td>
+            <td class="actions">
+                <form method="POST" action="{{ url_for('dashboard.review', record_id=item.id, decision='approved') }}">
+                    <button class="btn btn-approve" type="submit">✓ Approve</button>
+                </form>
+                <form method="POST" action="{{ url_for('dashboard.review', record_id=item.id, decision='rejected') }}">
+                    <button class="btn btn-reject" type="submit">✗ Reject</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="empty-state">Nothing needs review right now. 🎉</p>
+{% endif %}
+
+<h2>📣 Pending User Reports ({{ pending_reports|length }})</h2>
+{% if pending_reports %}
+<table class="content-table">
+    <thead><tr><th>ID</th><th>Content</th><th>Reason</th><th>Reporter</th><th>Actions</th></tr></thead>
+    <tbody>
+        {% for report in pending_reports %}
+        <tr>
+            <td>#{{ report.id }}</td>
+            <td class="preview-cell">{{ report.reported_content[:120] }}</td>
+            <td>{{ report.reason }}</td>
+            <td>{{ report.reporter_id }}</td>
+            <td class="actions">
+                <form method="POST" action="{{ url_for('dashboard.resolve_report', report_id=report.id) }}">
+                    <button class="btn btn-approve" type="submit">Mark Resolved</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="empty-state">No pending user reports.</p>
+{% endif %}
+
+<h2>🕓 Recent Activity</h2>
+<table class="content-table">
+    <thead><tr><th>ID</th><th>Type</th><th>Preview</th><th>Decision</th><th>Human Decision</th><th>When</th></tr></thead>
+    <tbody>
+        {% for item in recent_items %}
+        <tr>
+            <td>#{{ item.id }}</td>
+            <td>{{ item.content_type }}</td>
+            <td class="preview-cell">{{ item.preview }}</td>
+            <td><span class="badge badge-{{ item.decision }}">{{ item.decision }}</span></td>
+            <td>{{ item.human_decision or '—' }}</td>
+            <td>{{ item.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

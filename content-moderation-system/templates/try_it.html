@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Try It{% endblock %}
+
+{% block content %}
+<h1>Try the Moderation Engine</h1>
+<p>Submit sample content below to see how the automated system analyzes it in real time.</p>
+
+<div class="try-it-grid">
+    <div class="card">
+        <h3>Text Moderation</h3>
+        <textarea id="textInput" rows="5" placeholder="Type a comment or message to test..."></textarea>
+        <button class="btn btn-primary" onclick="submitText()">Analyze Text</button>
+        <pre id="textResult" class="result-box"></pre>
+    </div>
+
+    <div class="card">
+        <h3>Image Moderation</h3>
+        <input type="file" id="imageInput" accept="image/*">
+        <button class="btn btn-primary" onclick="submitImage()">Analyze Image</button>
+        <pre id="imageResult" class="result-box"></pre>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
