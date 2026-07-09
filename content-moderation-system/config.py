@@ -17,6 +17,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+INSTANCE_DIR = os.path.join(BASE_DIR, "instance")
+os.makedirs(INSTANCE_DIR, exist_ok=True)
 
 # Get the host and port from environment variables (for public access)
 # Default: 0.0.0.0 listens on all network interfaces, port 5000
@@ -32,7 +34,8 @@ class Config:
     # SQLite is a simple, file-based database - perfect for local development.
     # (In the original Azure design, Azure Cosmos DB played this role.)
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(
-        BASE_DIR, "database", "moderation.db"
+    INSTANCE_DIR,
+    "moderation.db"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
